@@ -33,16 +33,14 @@ namespace SQLRunner
             {
                 // skip any foreign keys with same source/target
                 if (dependency.Target.Equals(dependency.Source)) continue;
-                Item dep;
-                Item src;
                 // See if the target of the FK exists, if not create it
-                if (!tablesWithDependencies.TryGetValue(dependency.Target, out dep))
+                if (!tablesWithDependencies.TryGetValue(dependency.Target, out Item dep))
                 {
                     dep = new Item(dependency.Target, new List<Item>());
                     tablesWithDependencies.Add(dependency.Target, dep);
                 }
                 // If source of FK exists, add the target as a dependency of it
-                if (tablesWithDependencies.TryGetValue(dependency.Source, out src))
+                if (tablesWithDependencies.TryGetValue(dependency.Source, out Item src))
                 {
                     src.AddDependency(dep);
                 }

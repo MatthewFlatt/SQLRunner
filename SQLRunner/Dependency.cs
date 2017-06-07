@@ -8,11 +8,13 @@ namespace SQLRunner
     {
         public string Source;
         public string Target;
+        public string Name;
 
-        public Dependency(string source, string target)
+        public Dependency(string source, string target, string name)
         {
             Source = source;
             Target = target;
+            Name = name;
         }
     }
 }

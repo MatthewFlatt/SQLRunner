@@ -106,7 +106,7 @@ namespace SQLRunner
             {
                 while (reader.Read())
                 {
-                    tablesWithDependencies.Add(new Dependency(reader.GetString(0), reader.GetString(1)));
+                    tablesWithDependencies.Add(new Dependency(reader.GetString(0), reader.GetString(1), reader.GetString(2)));
                 }
                 reader.Close();
             }

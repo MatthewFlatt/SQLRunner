@@ -9,6 +9,7 @@ namespace SQLRunner
     {
         public string Name { get; private set; }
         public List<Item> Dependencies { get; private set; }
+        public List<string> ForeignKeysToSelf { get; private set; }
 
         public Item(string name, List<Item> dependencies)
         {
@@ -24,6 +25,11 @@ namespace SQLRunner
         public void AddDependency(Item depItem)
         {
             Dependencies.Add(depItem);    
+        }
+
+        public void AddForeignKeyToSelfName(string name)
+        {
+            ForeignKeysToSelf.Add(name);
         }
     }
 }

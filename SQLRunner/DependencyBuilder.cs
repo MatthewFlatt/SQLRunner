@@ -16,7 +16,7 @@ namespace SQLRunner
 
             inClause = inClause.TrimEnd(',');
             inClause += ")";
-            return $"SELECT tab.name AS sourceTable, ref.name AS targetTable FROM sys.foreign_keys INNER JOIN sys.tables tab ON tab.object_id = foreign_keys.parent_object_id INNER JOIN sys.tables ref ON ref.object_id = foreign_keys.referenced_object_id WHERE tab.name IN {inClause} AND ref.name IN {inClause}";
+            return $"SELECT tab.name AS sourceTable, ref.name, fkeys.name AS targetTable FROM sys.foreign_keys fkeys INNER JOIN sys.tables tab ON tab.object_id = foreign_keys.parent_object_id INNER JOIN sys.tables ref ON ref.object_id = foreign_keys.referenced_object_id WHERE tab.name IN {inClause} AND ref.name IN {inClause}";
         }
 
         /// <summary>
@@ -31,13 +31,17 @@ namespace SQLRunner
 
             foreach (var dependency in dependencies)
             {
-                // skip any foreign keys with same source/target
-                if (dependency.Target.Equals(dependency.Source)) continue;
                 // See if the target of the FK exists, if not create it
                 if (!tablesWithDependencies.TryGetValue(dependency.Target, out Item dep))
                 {
                     dep = new Item(dependency.Target, new List<Item>());
                     tablesWithDependencies.Add(dependency.Target, dep);
+                }
+                // skip any foreign keys with same source/target after storing key name
+                if (dependency.Target.Equals(dependency.Source))
+                {
+                    dep.AddForeignKeyToSelfName(dependency.Name);
+                    continue;
                 }
                 // If source of FK exists, add the target as a dependency of it
                 if (tablesWithDependencies.TryGetValue(dependency.Source, out Item src))

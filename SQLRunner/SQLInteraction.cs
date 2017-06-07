@@ -33,6 +33,7 @@ namespace SQLRunner
                 {
                     var rowsAdded = 0;
                     var fileEnded = false;
+                    var multiLine = false;
                     string filename;
                     fileDictionary.TryGetValue(table.Name, out filename);
                     
@@ -42,17 +43,40 @@ namespace SQLRunner
                         {
                             // Split into batches of 100 inserts
                             for (int i = 0; i < 100; i++)
-                            {
-                                var line = reader.ReadLine();
-                                if (line != null)
-                                {
-                                    builder.AppendLine(line);
-                                }
-                                else
-                                {
-                                    fileEnded = true;
-                                    break;
-                                }
+                            {                                
+                                    var line = reader.ReadLine();
+                                    if (line != null)
+                                    {
+                                        if (line.StartsWith("EXEC"))
+                                        {
+                                            // Not a single INSERT statement so need to ensurre all lines in this batch
+                                            multiLine = true;
+                                        }
+                                        builder.AppendLine(line);
+                                        while (multiLine)
+                                        {
+                                            line = reader.ReadLine();
+                                            if (line != null)
+                                            {
+                                                if (line.EndsWith("')"))
+                                                {
+                                                    multiLine = false;
+                                                }
+                                                builder.AppendLine(line);
+                                            }
+                                            else
+                                            {
+                                                fileEnded = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        fileEnded = true;
+                                        break;
+                                    }
+                                
                             }
                             command.CommandText = builder.ToString();
                             if (!string.IsNullOrWhiteSpace(command.CommandText))
